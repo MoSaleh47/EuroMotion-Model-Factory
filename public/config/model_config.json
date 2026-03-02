@@ -1,0 +1,357 @@
+{
+  "metadata": {
+    "model_name": "EuroMotion Automotive Supply Chain Dynamics",
+    "version": "2.0",
+    "description": "System dynamics model for EV/SDV component manufacturing",
+    "author": "Aivancity - Systems Dynamics Team",
+    "date_created": "2026-02-05"
+  },
+  "stocks": {
+    "production_capacity": {
+      "initial_value": 10000,
+      "unit": "units/month",
+      "description": "Maximum manufacturing capacity for EV/SDV components",
+      "min_bound": 5000,
+      "max_bound": 50000
+    },
+    "inventory": {
+      "initial_value_multiplier": 2.0,
+      "depends_on": "production_capacity",
+      "unit": "units",
+      "description": "Safety stock of finished components",
+      "max_bound_multiplier": 6.0
+    },
+    "backlog": {
+      "initial_value": 0,
+      "unit": "units",
+      "description": "Accumulated unmet customer orders"
+    },
+    "market_share": {
+      "initial_value": 50.0,
+      "unit": "percentage",
+      "min_bound": 10,
+      "max_bound": 90,
+      "description": "Market position relative to competitors"
+    },
+    "supply_chain_visibility": {
+      "initial_value": 40.0,
+      "unit": "score_0_100",
+      "max_bound": 100,
+      "description": "Transparency of supplier network"
+    },
+    "regional_supply_percentage": {
+      "initial_value": 10.0,
+      "unit": "percentage",
+      "max_bound": 80,
+      "description": "Percentage sourced regionally vs Asia"
+    }
+  },
+  "flows": {
+    "customer_orders": {
+      "initial_value": 15000,
+      "unit": "units/month",
+      "growth_rate": 0.005,
+      "formula": "base_demand * (1 + industry_growth_rate) * (market_share / 50)",
+      "description": "Monthly demand from automotive OEMs"
+    },
+    "production_rate": {
+      "mechanism": "supply_constrained_production",
+      "formula": "production_capacity * min(semiconductor_availability / 100, battery_availability / 100) * efficiency",
+      "description": "Actual production considering supply constraints",
+      "parameters": {
+        "max_overtime_factor": 1.5,
+        "learning_rate_annual": 5.0
+      }
+    },
+    "delivery_rate": {
+      "mechanism": "inventory_augmented_delivery",
+      "formula": "min(production_rate + inventory * 0.3, customer_orders + backlog * backlog_clearance_rate)",
+      "description": "Shipments to OEMs from production + inventory"
+    },
+    "capacity_expansion": {
+      "mechanism": "investment_driven_expansion",
+      "formula": "revenue * resilience_investment_percentage / 100 / cost_per_unit_capacity - production_capacity * depreciation_rate / 12",
+      "description": "Net capacity change from investment minus depreciation",
+      "parameters": {
+        "cost_per_unit_capacity": 5000,
+        "depreciation_rate_annual": 0.02
+      }
+    }
+  },
+  "parameters": {
+    "supply_chain": {
+      "semiconductor_reliability": {
+        "value": 85,
+        "unit": "percentage",
+        "min": 50,
+        "max": 100,
+        "description": "Base reliability of semiconductor supply from Asia"
+      },
+      "battery_reliability": {
+        "value": 90,
+        "unit": "percentage",
+        "min": 50,
+        "max": 100,
+        "description": "Availability of battery components"
+      }
+    },
+    "strategic": {
+      "resilience_investment_percentage": {
+        "value": 5,
+        "unit": "percentage_of_revenue",
+        "min": 0,
+        "max": 20,
+        "description": "Budget for supply chain diversification"
+      },
+      "regionalization_rate": {
+        "value": 10,
+        "unit": "percentage_annual",
+        "min": 0,
+        "max": 30,
+        "description": "Speed of shifting to regional suppliers"
+      },
+      "target_inventory_months": {
+        "value": 3.0,
+        "unit": "months",
+        "min": 1.0,
+        "max": 6.0,
+        "description": "Desired safety stock coverage"
+      }
+    },
+    "technical": {
+      "sdv_semiconductor_multiplier": {
+        "value": 2.3,
+        "unit": "coefficient",
+        "description": "SDVs require 2.3x more semiconductors than EVs"
+      },
+      "production_learning_rate": {
+        "value": 5,
+        "unit": "percentage_annual",
+        "description": "Efficiency improvement from experience"
+      }
+    },
+    "market": {
+      "industry_growth_rate": {
+        "value": 0.005,
+        "unit": "monthly_percentage",
+        "description": "0.5% monthly = ~6% annual EV market growth"
+      },
+      "price_per_unit": {
+        "value": 1000,
+        "unit": "euros",
+        "description": "Revenue per component delivered"
+      },
+      "service_level_target": {
+        "value": 85,
+        "unit": "percentage",
+        "description": "Target delivery performance"
+      }
+    },
+    "adjustment_rates": {
+      "backlog_clearance_rate": {
+        "value": 0.15,
+        "unit": "fraction_per_month",
+        "description": "Rate of reducing backlog"
+      },
+      "market_share_sensitivity": {
+        "value": 2.0,
+        "unit": "coefficient",
+        "description": "Market share response to service level"
+      }
+    }
+  },
+  "constraints": {
+    "production_capacity": {
+      "min_ratio_of_initial": 0.5,
+      "max_ratio_of_initial": 3.0
+    },
+    "inventory": {
+      "max_bound_multiplier": 6.0
+    }
+  },
+  "feedback_loops": {
+    "R1": {
+      "name": "Growth Engine",
+      "type": "reinforcing",
+      "polarity": "positive",
+      "nodes": [
+        "revenue",
+        "investment_resilience",
+        "production_capacity",
+        "market_share"
+      ],
+      "edges": [
+        {
+          "from": "revenue",
+          "to": "investment_resilience",
+          "formula": "investment = revenue × resilience_%",
+          "polarity": "+"
+        },
+        {
+          "from": "investment_resilience",
+          "to": "production_capacity",
+          "formula": "Δcapacity = investment / cost_per_unit",
+          "polarity": "+"
+        },
+        {
+          "from": "production_capacity",
+          "to": "market_share",
+          "formula": "Δmarket_share ∝ delivery_performance",
+          "polarity": "+"
+        },
+        {
+          "from": "market_share",
+          "to": "revenue",
+          "formula": "revenue = deliveries × price × (market_share/50)",
+          "polarity": "+"
+        }
+      ],
+      "description": "Revenue funds capacity expansion enabling market capture"
+    },
+    "R2": {
+      "name": "Death Spiral",
+      "type": "reinforcing",
+      "polarity": "negative",
+      "nodes": [
+        "semiconductor_availability",
+        "production_rate",
+        "backlog",
+        "market_share",
+        "revenue"
+      ],
+      "edges": [
+        {
+          "from": "semiconductor_availability",
+          "to": "production_rate",
+          "formula": "production = capacity × min(semi_avail/SDV_mult, battery_avail)",
+          "polarity": "+"
+        },
+        {
+          "from": "production_rate",
+          "to": "backlog",
+          "formula": "Δbacklog = orders - deliveries",
+          "polarity": "-"
+        },
+        {
+          "from": "backlog",
+          "to": "market_share",
+          "formula": "Δmarket_share = -sensitivity × backlog_ratio",
+          "polarity": "-"
+        },
+        {
+          "from": "market_share",
+          "to": "revenue",
+          "formula": "revenue ∝ market_share",
+          "polarity": "+"
+        },
+        {
+          "from": "revenue",
+          "to": "semiconductor_availability",
+          "formula": "Low investment → Low regionalization → High Asia dependency",
+          "polarity": "+"
+        }
+      ],
+      "description": "Supply shortage cascades into business collapse"
+    },
+    "B1": {
+      "name": "Inventory Buffer",
+      "type": "balancing",
+      "polarity": "negative",
+      "nodes": [
+        "backlog",
+        "inventory",
+        "delivery_rate"
+      ],
+      "edges": [
+        {
+          "from": "backlog",
+          "to": "inventory",
+          "formula": "Target inventory = orders × target_months",
+          "polarity": "+"
+        },
+        {
+          "from": "inventory",
+          "to": "delivery_rate",
+          "formula": "deliveries = min(production + inventory, orders)",
+          "polarity": "+"
+        },
+        {
+          "from": "delivery_rate",
+          "to": "backlog",
+          "formula": "Δbacklog = orders - deliveries",
+          "polarity": "-"
+        }
+      ],
+      "description": "Safety stock dampens volatility"
+    },
+    "B2": {
+      "name": "Regionalization",
+      "type": "balancing",
+      "polarity": "negative",
+      "nodes": [
+        "regional_supply_percentage",
+        "semiconductor_availability",
+        "production_rate"
+      ],
+      "edges": [
+        {
+          "from": "semiconductor_availability",
+          "to": "regional_supply_percentage",
+          "formula": "Low Asia reliability → Invest in regional suppliers",
+          "polarity": "-"
+        },
+        {
+          "from": "regional_supply_percentage",
+          "to": "semiconductor_availability",
+          "formula": "Blended_avail = (1-regional%) × Asia + regional% × 95%",
+          "polarity": "+"
+        }
+      ],
+      "description": "Reduces Asia dependency over time"
+    }
+  },
+  "layout": {
+    "revenue": {
+      "x": 400,
+      "y": 50
+    },
+    "investment_resilience": {
+      "x": 150,
+      "y": 150
+    },
+    "production_capacity": {
+      "x": 150,
+      "y": 350
+    },
+    "market_share": {
+      "x": 650,
+      "y": 250
+    },
+    "semiconductor_availability": {
+      "x": 400,
+      "y": 450
+    },
+    "production_rate": {
+      "x": 150,
+      "y": 550
+    },
+    "backlog": {
+      "x": 400,
+      "y": 650
+    },
+    "inventory": {
+      "x": 650,
+      "y": 550
+    },
+    "delivery_rate": {
+      "x": 650,
+      "y": 650
+    },
+    "regional_supply_percentage": {
+      "x": 200,
+      "y": 450
+    }
+  },
+  "market_share_mechanism": "service_based",
+  "regionalization_mechanism": "linear"
+}

@@ -1,0 +1,15 @@
+{
+    "scenario_name": "Aggressive Growth",
+    "description": "Aggressive investment in capacity and supply chain resilience to capture market share",
+    "business_question": "What happens if we invest aggressively (15% of revenue) in supply chain resilience?",
+    "parameter_overrides": {
+        "semiconductor_reliability": 85,
+        "battery_reliability": 90,
+        "resilience_investment_percentage": 15,
+        "regionalization_rate": 25,
+        "target_inventory_months": 4.5,
+        "sdv_semiconductor_multiplier": 2.3,
+        "production_learning_rate": 8
+    },
+    "shock_events": []
+}

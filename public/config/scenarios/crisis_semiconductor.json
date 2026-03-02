@@ -1,0 +1,26 @@
+{
+    "scenario_name": "Semiconductor Crisis 2027",
+    "description": "Major geopolitical disruption causes 50% semiconductor shortage for 12 months starting month 18",
+    "business_question": "Can our supply chain withstand a repeat of the 2021 chip shortage?",
+    "parameter_overrides": {
+        "semiconductor_reliability": 85,
+        "battery_reliability": 90,
+        "resilience_investment_percentage": 10,
+        "regionalization_rate": 20,
+        "target_inventory_months": 4.0,
+        "sdv_semiconductor_multiplier": 2.3,
+        "production_learning_rate": 5
+    },
+    "shock_events": [
+        {
+            "name": "Taiwan Strait Semiconductor Disruption",
+            "type": "supply_disruption",
+            "start_month": 18,
+            "duration_months": 12,
+            "affected_variable": "semiconductor_reliability",
+            "impact_type": "percentage_reduction",
+            "impact_magnitude": 50,
+            "rationale": "Simulates geopolitical crisis affecting Taiwan-based chip production"
+        }
+    ]
+}

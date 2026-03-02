@@ -1,0 +1,15 @@
+{
+    "scenario_name": "Baseline",
+    "description": "Normal operating conditions with default parameters",
+    "business_question": "What is our expected performance under normal market conditions?",
+    "parameter_overrides": {
+        "semiconductor_reliability": 85,
+        "battery_reliability": 90,
+        "resilience_investment_percentage": 5,
+        "regionalization_rate": 10,
+        "target_inventory_months": 3.0,
+        "sdv_semiconductor_multiplier": 2.3,
+        "production_learning_rate": 5
+    },
+    "shock_events": []
+}

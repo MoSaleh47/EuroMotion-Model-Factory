@@ -1,0 +1,36 @@
+{
+    "time": {
+        "duration_months": 60,
+        "time_step": 1.0,
+        "integration_method": "euler"
+    },
+    "output": {
+        "variables": [
+            "production_capacity",
+            "inventory",
+            "backlog",
+            "market_share",
+            "supply_chain_visibility",
+            "regional_supply_percentage",
+            "customer_orders",
+            "production_rate",
+            "delivery_rate",
+            "revenue",
+            "cumulative_revenue",
+            "investment_resilience",
+            "semiconductor_availability",
+            "battery_availability",
+            "learning_factor"
+        ],
+        "sampling_interval": 1
+    },
+    "shock_scenarios": {
+        "enabled": false,
+        "events": []
+    },
+    "validation": {
+        "check_mass_balance": true,
+        "detect_divergence": true,
+        "divergence_threshold": 1000000
+    }
+}
