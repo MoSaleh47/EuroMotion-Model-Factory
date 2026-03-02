@@ -95,7 +95,7 @@ euromotion-model-factory/
 
 ## 👥 Team
 
-Aivancity - Systems Dynamics Team
+Samir Adam MAHAMAT SALEH - Ibrahima THIOYE
 
 ---
 
